@@ -1,6 +1,7 @@
 import { Component } from "react";
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
+import css from './ImageGallery.module.css';
 import { ImageGalleryItem } from '../imageGalleryItem/ImageGalleryItem';
 import { Loader } from '../loader/Loader';
 import  Button  from '../button/Button';
@@ -57,7 +58,7 @@ export default class ImageGallery extends Component {
         }
 
         if (this.state.status === 'resolved' && this.state.images.length > 0) {
-            return <ul className="gallery">
+            return <ul className={css.gallery}>
                 <ImageGalleryItem images={this.state.images} />
                 <Button onClick={ this.handleClick} />
             </ul>

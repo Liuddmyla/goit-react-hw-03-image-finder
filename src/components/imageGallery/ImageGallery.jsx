@@ -4,75 +4,91 @@ import PropTypes from 'prop-types';
 import css from './ImageGallery.module.css';
 import { ImageGalleryItem } from '../imageGalleryItem/ImageGalleryItem';
 import { Loader } from '../loader/Loader';
-import  Button  from '../button/Button';
+import Button from '../button/Button';
+import Modal from "../modal/Modal";
 
 export default class ImageGallery extends Component {
     state = {
         images: [],
         error: null,
-        status: 'idle',
+        status: null,
         page: 1,
-    }
-
-    fetchApi = (nextName) => {
-       const URL = `https://pixabay.com/api/?q=${nextName}&page=${this.state.page}&key=33641920-b059883ebd7147c979fd953b4&image_type=photo&orientation=horizontal&per_page=12`; 
-      
-       fetch(URL).then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(new Error('Error!'))
-            })
-            .then(({ hits }) => {
-                if (hits.length === 0) {
-                    toast.error('Sorry, there are no images matching your search query. Please try again.', {autoClose: 2000,});
-                }
-                this.setState(prevState => {
-                    return { images:[...prevState.images, ...hits ], status: 'resolved' }
-                })
-            })
-            .catch(error => this.setState({ error, status: 'rejected' }));
+        ishidden: false,
     }
 
     componentDidUpdate(prevProps, prevState) {
         const prevName = prevProps.imageName;
         const nextName = this.props.imageName;
-      
-
+        const URL = `https://pixabay.com/api/?q=${nextName}&page=${this.state.page}&key=33641920-b059883ebd7147c979fd953b4&image_type=photo&orientation=horizontal&per_page=12`;
+        
         if (prevName !== nextName) {
             this.setState({ status: 'pending', images: [], page: 1});
-            this.fetchApi(nextName);            
-        } 
+
+            fetch(URL).then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(new Error('Error!'))
+            })
+                .then(({ hits }) => {
+                    if (hits.length === 0) {
+                        toast.error('Sorry, there are no images matching your search query. Please try again.', { autoClose: 2000, });
+                    }
+                    this.setState(prevState => {
+                        return { images: [...prevState.images, ...hits], status: 'resolved' }
+                    })
+                })
+                .catch(error => this.setState({ error, status: 'rejected' }));
+        }
+        
         
         if (prevState.page !== this.state.page) {
-            this.setState({ status: 'pending'});
-            this.fetchApi(nextName);            
-         }
+            this.setState({ status: 'pending' });
+           
+            fetch(URL).then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(new Error('Error!'))
+            })
+                .then(({ hits }) => {
+                    this.setState(prevState => {
+                        return { images: [...prevState.images, ...hits], status: 'resolved' }
+                    })
+                })
+                .catch(error => this.setState({ error, status: 'rejected' }));
+        }
     }
 
     handleClick = () => {
         this.setState({ page: this.state.page + 1 });
     }
 
+    handleopenModal = (e) => {
+        console.log(e.target);
+    }
+
     render() {
-        if (this.state.status === 'idle') {
-            return <div></div>
-        }        
 
-        if (this.state.status === 'rejected') {
-            return <div>{ this.state.error.message}</div>
-        }
-
-        if (this.state.status === 'resolved' && this.state.images.length > 0) {
-            return <ul className={css.gallery}>
-                <ImageGalleryItem images={this.state.images} />
-                <Button onClick={ this.handleClick} />
-            </ul>
-        }
-        
-        if (this.state.status === 'pending') {
-            return <div><Loader /></div>
-        }
+        return (
+            <div>
+                {this.state.status === 'pending' && this.state.images.length === 0 && <Loader />}
+                {this.state.status === 'resolved' && this.state.images.length > 0 && (
+                    <ul className={css.gallery}>
+                        <ImageGalleryItem images={this.state.images} onClick={ this.handleopenModal} />
+                    </ul>
+                )}
+                {this.state.images.length > 11 && this.state.status === 'resolved' && (
+                    <Button onClick={this.handleClick} />
+                )}
+                {this.state.images.length > 11 && this.state.status === 'pending' && (
+                    <Loader />
+                )}
+                {this.state.status === 'rejected' && (<div>{this.state.error.message}</div>)}
+                {this.state.ishidden && <Modal images={this.state.images}/>}
+            </div>
+        )     
+       
     }
 }
 

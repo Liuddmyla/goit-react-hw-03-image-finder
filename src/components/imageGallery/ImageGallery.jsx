@@ -7,6 +7,7 @@ import { Loader } from '../loader/Loader';
 import Button from '../button/Button';
 import Modal from "../modal/Modal";
 
+
 export default class ImageGallery extends Component {
     state = {
         images: [],
@@ -21,9 +22,10 @@ export default class ImageGallery extends Component {
         const nextName = this.props.imageName;
         const URL = `https://pixabay.com/api/?q=${nextName}&page=${this.state.page}&key=33641920-b059883ebd7147c979fd953b4&image_type=photo&orientation=horizontal&per_page=12`;
         
-        if (prevName !== nextName) {
-            this.setState({ status: 'pending', images: [], page: 1});
-
+        
+        if (prevName !== nextName || prevState.page !== this.state.page) {
+            this.setState({ status: 'pending'});
+           
             fetch(URL).then(response => {
                 if (response.ok) {
                     return response.json();
@@ -34,13 +36,10 @@ export default class ImageGallery extends Component {
                     if (hits.length === 0) {
                         toast.error('Sorry, there are no images matching your search query. Please try again.', { autoClose: 2000, });
                     }
-                    this.setState(prevState => {
-                        return { images: [...prevState.images, ...hits], status: 'resolved' }
-                    })
+                    this.setState({ images: hits, status: 'resolved' })
                 })
                 .catch(error => this.setState({ error, status: 'rejected' }));
         }
-        
         
         if (prevState.page !== this.state.page) {
             this.setState({ status: 'pending' });
@@ -61,7 +60,7 @@ export default class ImageGallery extends Component {
     }
 
     handleClick = () => {
-        this.setState({ page: this.state.page + 1 });
+        this.setState( prevState=>({ page: prevState.page + 1 }));
     }
 
     handleopenModal = (e) => {

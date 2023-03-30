@@ -14,30 +14,40 @@ export default class ImageGallery extends Component {
         page: 1,
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        const prevName = prevProps.imageName;
-        const nextName = this.props.imageName;
-        const URL = `https://pixabay.com/api/?q=${nextName}&page=${this.state.page}&key=33641920-b059883ebd7147c979fd953b4&image_type=photo&orientation=horizontal&per_page=12`;
-
-        if (prevName !== nextName || prevState.page !== this.state.page) {
-            this.setState({ status: 'pending' });
-
-            fetch(URL).then(response => {
+    fetchApi = (nextName) => {
+       const URL = `https://pixabay.com/api/?q=${nextName}&page=${this.state.page}&key=33641920-b059883ebd7147c979fd953b4&image_type=photo&orientation=horizontal&per_page=12`; 
+      
+       fetch(URL).then(response => {
                 if (response.ok) {
                     return response.json();
                 }
                 return Promise.reject(new Error('Error!'))
             })
-                .then(({ hits }) => {
-                    if (hits.length === 0) {
-                        toast.error('Sorry, there are no images matching your search query. Please try again.', {autoClose: 2000,});
-                    }
-                    this.setState(prevState => {
-                        return { images:[...prevState.images, ...hits ], status: 'resolved' }
-                    })
-                } )
-                .catch(error => this.setState({ error, status: 'rejected' }));
-        }       
+            .then(({ hits }) => {
+                if (hits.length === 0) {
+                    toast.error('Sorry, there are no images matching your search query. Please try again.', {autoClose: 2000,});
+                }
+                this.setState(prevState => {
+                    return { images:[...prevState.images, ...hits ], status: 'resolved' }
+                })
+            })
+            .catch(error => this.setState({ error, status: 'rejected' }));
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        const prevName = prevProps.imageName;
+        const nextName = this.props.imageName;
+      
+
+        if (prevName !== nextName) {
+            this.setState({ status: 'pending', images: [], page: 1});
+            this.fetchApi(nextName);            
+        } 
+        
+        if (prevState.page !== this.state.page) {
+            this.setState({ status: 'pending'});
+            this.fetchApi(nextName);            
+         }
     }
 
     handleClick = () => {
@@ -47,11 +57,7 @@ export default class ImageGallery extends Component {
     render() {
         if (this.state.status === 'idle') {
             return <div></div>
-        }
-
-        if (this.state.status === 'pending') {
-            return <div><Loader /></div>
-        }
+        }        
 
         if (this.state.status === 'rejected') {
             return <div>{ this.state.error.message}</div>
@@ -62,7 +68,11 @@ export default class ImageGallery extends Component {
                 <ImageGalleryItem images={this.state.images} />
                 <Button onClick={ this.handleClick} />
             </ul>
-        } 
+        }
+        
+        if (this.state.status === 'pending') {
+            return <div><Loader /></div>
+        }
     }
 }
 

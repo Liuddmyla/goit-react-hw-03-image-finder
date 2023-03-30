@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
+import css from './Button.module.css';
 
 const Bytton = ({onClick}) => {
     return (
-        <button type="button" className="button" onClick={onClick}>Load more</button>
+        <button type="button" className={css.button} onClick={onClick}>Load more</button>
     )
 }
 

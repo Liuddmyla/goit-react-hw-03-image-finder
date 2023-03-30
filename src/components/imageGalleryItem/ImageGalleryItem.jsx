@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 export const ImageGalleryItem = ({ images }) => {
     return (
         images.map(image => {
-            return <li key={image.id} className="gallery-item">
+            return  <li key={image.id} className="gallery-item">
                       <img src={image.webformatURL} alt={image.tags} />
                     </li>
         })        

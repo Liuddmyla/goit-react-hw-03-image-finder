@@ -97,7 +97,7 @@ export default class ImageGallery extends Component {
                         <ImageGalleryItem images={this.state.images} onClick={ this.handleOpenModal} />
                     </ul>
                 )}
-                {this.state.images.length > 11 && this.state.status === Status.RESOLVED && (
+                {this.state.images.length > 11 && this.state.status === Status.RESOLVED && (this.state.total - this.state.images.length) > 0 && (
                     <Button onClick={this.handleClick} />
                 )}
                 {this.state.status === Status.PENDING  && <Loader />}
@@ -112,3 +112,4 @@ export default class ImageGallery extends Component {
 ImageGallery.propTypes = {
     imageName: PropTypes.string.isRequired,
 }
+

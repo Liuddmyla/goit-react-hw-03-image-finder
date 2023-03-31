@@ -6,7 +6,7 @@ import {ReactComponent as SearchIcon} from "../icons/search.svg";
 
 export default class Searchbar extends Component{
     state = {
-       imageName: '',
+        imageName: ''        
     }
 
     handleNameChange = (e) => {
@@ -37,8 +37,6 @@ export default class Searchbar extends Component{
                     <input
                         className={css.input}
                         type="text"
-                        // autocomplete="off"
-                        // autofocus
                         placeholder="Search images and photos..."
                         value={this.state.imageName}
                         onChange={this.handleNameChange}

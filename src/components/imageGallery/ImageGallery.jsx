@@ -92,7 +92,7 @@ export default class ImageGallery extends Component {
 
         return (
             <div>               
-                {this.state.status === Status.RESOLVED && this.state.images.length > 0 && (
+                {this.state.images.length > 0 && (
                     <ul className={css.gallery}>
                         <ImageGalleryItem images={this.state.images} onClick={ this.handleOpenModal} />
                     </ul>
